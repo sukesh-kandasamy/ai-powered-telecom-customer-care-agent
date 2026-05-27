@@ -1,0 +1,10 @@
+pipecat-ai[elevenlabs,groq,google,silero,deepgram]
+fastapi
+uvicorn
+python-dotenv
+loguru
+twilio
+jinja2
+python-multipart
+aiofiles
+pypdf
