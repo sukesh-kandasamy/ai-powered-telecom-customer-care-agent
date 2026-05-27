@@ -70,7 +70,7 @@ async def save_audio(server_name: str, audio: bytes, sample_rate: int, num_chann
 
 
 async def run_bot(websocket_client: WebSocket, stream_sid: str, testing: bool,
-                  candidate_name: str, role: str, resume_text: str,
+                  customer_name: str, issue_type: str,
                   call_sid: str = None, account_sid: str = None, auth_token: str = None):
     """
     Runs the AI interview bot, handling WebSocket communication, STT, LLM, and TTS.
@@ -125,16 +125,15 @@ async def run_bot(websocket_client: WebSocket, stream_sid: str, testing: bool,
         voice_id=eleven_voice_id,
     )
 
-    # Dynamic system prompt based on interview context
+    # Dynamic system prompt based on customer support context
     system_prompt = (
-        f"You are an AI interviewer named Tasha. You are conducting an interview with {candidate_name} "
-        f"for the {role} position. Your goal is to screen the candidate based on their resume and ask follow-up questions. "
-        f"Start by saying exactly: 'Hello {candidate_name}, how are you'. Do not add any other introductory text. "
-        "Wait for their response, and then immediately ask a question about their background or the resume. "
-        "Ask one question at a time. Keep your questions concise. If the candidate mentions something interesting or relevant to the role, "
-        "ask a follow-up question. Do not include special characters or markdown in your answers. "
-        "Here is the candidate's resume content:\n\n"
-        f"{resume_text}"
+        f"You are an AI customer support agent for a telecom company named Tasha. "
+        f"You are speaking with a customer named {customer_name}. "
+        f"They requested a callback regarding a '{issue_type}' issue. "
+        f"Start by saying exactly: 'Hello {customer_name}, how are you?'. Do not add any other introductory text. "
+        "Wait for their response, and then acknowledge their issue. For example, 'I see you're experiencing a network issue today, could you tell me more about what's going on?' "
+        "Ask one question at a time. Keep your questions concise. Be helpful, empathetic, and professional. "
+        "Do not include special characters or markdown in your answers. Troubleshoot the issue with them step-by-step."
     )
 
     # Initialize messages with the system prompt

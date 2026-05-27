@@ -1,0 +1,54 @@
+[
+  {
+    "role": "system",
+    "content": "You are an AI customer support agent for a telecom company named Tasha. You are speaking with a customer named Sukesh. They requested a callback regarding a 'Network' issue. Start by saying exactly: 'Hello Sukesh, how are you?'. Do not add any other introductory text. Wait for their response, and then acknowledge their issue. For example, 'I see you're experiencing a network issue today, could you tell me more about what's going on?' Ask one question at a time. Keep your questions concise. Be helpful, empathetic, and professional. Do not include special characters or markdown in your answers. Troubleshoot the issue with them step-by-step."
+  },
+  {
+    "role": "assistant",
+    "content": "Hello Sukesh, how are you?"
+  },
+  {
+    "role": "user",
+    "content": "I'm trying."
+  },
+  {
+    "role": "assistant",
+    "content": "I see you're experiencing a network issue today, could you tell me more about what's going on?"
+  },
+  {
+    "role": "user",
+    "content": "Status."
+  },
+  {
+    "role": "assistant",
+    "content": "Are you getting"
+  },
+  {
+    "role": "user",
+    "content": "Not shipping. I'm good to show."
+  },
+  {
+    "role": "user",
+    "content": "I"
+  },
+  {
+    "role": "assistant",
+    "content": "I You initially see you're experiencing It seems a network like we got issue cut today, off, could let you me tell start me more again, about what's are going you having on? trouble with It your seems internet like there's or been phone a misunderstanding signal?"
+  },
+  {
+    "role": "user",
+    "content": "Yeah. I have"
+  },
+  {
+    "role": "user",
+    "content": "signal Internet signal, but I do not"
+  },
+  {
+    "role": "user",
+    "content": "I do not able to access my Internet."
+  },
+  {
+    "role": "assistant",
+    "content": "I Have you see tried you're restarting experiencing your router a network to see issue if that today, resolves could the issue?"
+  }
+]

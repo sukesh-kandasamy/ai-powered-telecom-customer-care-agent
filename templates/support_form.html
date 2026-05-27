@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telecom Customer Care</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg-color: #0F172A;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top left, #1E1B4B, #0F172A);
+            color: var(--text-main);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            padding: 2rem;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+        }
+
+        input[type="text"],
+        input[type="tel"],
+        select {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--glass-border);
+            border-radius: 0.75rem;
+            color: var(--text-main);
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: all 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .step {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        .error-message {
+            color: #EF4444;
+            font-size: 0.875rem;
+            text-align: center;
+            margin-top: 1rem;
+            min-height: 1.25rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="glass-card">
+        <h1>Support Portal</h1>
+        <p class="subtitle" id="stepSubtitle">Authenticate to request a callback.</p>
+
+        <!-- Step 1: Request OTP -->
+        <div id="step1" class="step active">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" placeholder="John Doe">
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" placeholder="+1234567890">
+            </div>
+            <button id="btnSendOtp">Send OTP</button>
+        </div>
+
+        <!-- Step 2: Verify OTP -->
+        <div id="step2" class="step">
+            <div class="form-group">
+                <label for="otp">Enter OTP</label>
+                <input type="text" id="otp" placeholder="123456" maxlength="6">
+            </div>
+            <button id="btnVerifyOtp">Verify</button>
+        </div>
+
+        <!-- Step 3: Issue Selection -->
+        <div id="step3" class="step">
+            <div class="form-group">
+                <label for="issue">What are you experiencing?</label>
+                <select id="issue">
+                    <option value="Network">Network Data Issues</option>
+                    <option value="Call">Call Dropping / Quality</option>
+                    <option value="Signal">No Signal / Coverage</option>
+                </select>
+            </div>
+            <button id="btnRequestCall">Request AI Callback</button>
+        </div>
+        
+        <!-- Step 4: Success -->
+        <div id="step4" class="step">
+            <div style="text-align: center;">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 1rem;">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <h2 style="margin:0 0 0.5rem;">Request Sent!</h2>
+                <p style="color: var(--text-muted);">Our AI Support Agent is calling you right now.</p>
+            </div>
+        </div>
+
+        <div id="errorMessage" class="error-message"></div>
+    </div>
+</div>
+
+<script>
+    const step1 = document.getElementById('step1');
+    const step2 = document.getElementById('step2');
+    const step3 = document.getElementById('step3');
+    const step4 = document.getElementById('step4');
+    const subtitle = document.getElementById('stepSubtitle');
+    const errorMsg = document.getElementById('errorMessage');
+
+    let customerData = { name: '', phone: '', issue: '' };
+
+    function showError(msg) {
+        errorMsg.textContent = msg;
+    }
+
+    function clearError() {
+        errorMsg.textContent = '';
+    }
+
+    // Step 1 -> 2
+    document.getElementById('btnSendOtp').addEventListener('click', async (e) => {
+        const btn = e.target;
+        customerData.name = document.getElementById('name').value.trim();
+        customerData.phone = document.getElementById('phone').value.trim();
+
+        if (!customerData.name || !customerData.phone) {
+            return showError("Please enter name and phone number.");
+        }
+
+        btn.disabled = true;
+        btn.textContent = "Sending...";
+        clearError();
+
+        try {
+            const formData = new FormData();
+            formData.append('phone_no', customerData.phone);
+            
+            const res = await fetch('/send-otp', { method: 'POST', body: formData });
+            const data = await res.json();
+            
+            if (res.ok) {
+                step1.classList.remove('active');
+                step2.classList.add('active');
+                subtitle.textContent = "We sent a code to " + customerData.phone;
+            } else {
+                showError(data.error || "Failed to send OTP.");
+            }
+        } catch (err) {
+            showError("Network error occurred.");
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "Send OTP";
+        }
+    });
+
+    // Step 2 -> 3
+    document.getElementById('btnVerifyOtp').addEventListener('click', async (e) => {
+        const btn = e.target;
+        const otp = document.getElementById('otp').value.trim();
+
+        if (!otp) return showError("Please enter the OTP.");
+
+        btn.disabled = true;
+        btn.textContent = "Verifying...";
+        clearError();
+
+        try {
+            const formData = new FormData();
+            formData.append('phone_no', customerData.phone);
+            formData.append('otp_code', otp);
+            
+            const res = await fetch('/verify-otp', { method: 'POST', body: formData });
+            
+            if (res.ok) {
+                step2.classList.remove('active');
+                step3.classList.add('active');
+                subtitle.textContent = "Hi " + customerData.name + ", how can we help?";
+            } else {
+                const data = await res.json();
+                showError(data.error || "Invalid OTP.");
+            }
+        } catch (err) {
+            showError("Network error occurred.");
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "Verify";
+        }
+    });
+
+    // Step 3 -> 4
+    document.getElementById('btnRequestCall').addEventListener('click', async (e) => {
+        const btn = e.target;
+        customerData.issue = document.getElementById('issue').value;
+
+        btn.disabled = true;
+        btn.textContent = "Requesting...";
+        clearError();
+
+        try {
+            const formData = new FormData();
+            formData.append('name', customerData.name);
+            formData.append('phone_no', customerData.phone);
+            formData.append('issue_type', customerData.issue);
+            
+            const res = await fetch('/request-callback', { method: 'POST', body: formData });
+            
+            if (res.ok) {
+                step3.classList.remove('active');
+                step4.classList.add('active');
+                subtitle.textContent = "";
+            } else {
+                const data = await res.json();
+                showError(data.error || "Failed to request callback.");
+                btn.disabled = false;
+                btn.textContent = "Request AI Callback";
+            }
+        } catch (err) {
+            showError("Network error occurred.");
+            btn.disabled = false;
+            btn.textContent = "Request AI Callback";
+        }
+    });
+</script>
+
+</body>
+</html>
