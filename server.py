@@ -183,7 +183,7 @@ if __name__ == "__main__":
     
     required_vars = [
         "TWILIO_ACCOUNT_SID", "TWILIO_AUTH_TOKEN", "TWILIO_PHONE_NUMBER",
-        "SERVER_URL", "GROQ_API_KEY", "DEEPGRAM_API_KEY", "ELEVEN_API_KEY", "ELEVEN_VOICE_ID"
+        "SERVER_URL", "GROQ_API_KEY", "DEEPGRAM_API_KEY", "CARTESIA_API_KEY", "CARTESIA_VOICE_ID"
     ]
     
     missing_vars = [var for var in required_vars if not os.getenv(var)]

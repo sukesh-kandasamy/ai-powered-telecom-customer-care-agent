@@ -17,6 +17,7 @@ from fastapi import WebSocket
 from loguru import logger
 
 from pipecat.audio.vad.silero import SileroVADAnalyzer
+from pipecat.audio.vad.vad_analyzer import VADParams
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.runner import PipelineRunner
 from pipecat.pipeline.task import PipelineParams, PipelineTask
@@ -25,7 +26,7 @@ from pipecat.processors.aggregators.llm_response_universal import LLMContextAggr
 from pipecat.frames.frames import LLMContextFrame
 from pipecat.processors.audio.audio_buffer_processor import AudioBufferProcessor
 from pipecat.serializers.twilio import TwilioFrameSerializer
-from pipecat.services.elevenlabs.tts import ElevenLabsTTSService
+from pipecat.services.cartesia.tts import CartesiaTTSService
 from pipecat.services.deepgram.stt import DeepgramSTTService
 # from pipecat.services.google.llm import GoogleLLMService # Removed GoogleLLMService import
 from pipecat.services.groq.llm import GroqLLMService # New import for GroqLLMService
@@ -83,7 +84,13 @@ async def run_bot(websocket_client: WebSocket, stream_sid: str, testing: bool,
             audio_out_enabled=True,
             add_wav_header=False, # Twilio doesn't expect WAV headers in stream
             vad_enabled=True,
-            vad_analyzer=SileroVADAnalyzer(),
+            vad_analyzer=SileroVADAnalyzer(
+                params=VADParams(
+                    stop_secs=0.7,
+                    min_volume=0.3,
+                    confidence=0.5,
+                )
+            ),
             vad_audio_passthrough=True, # Pass VAD audio to STT
             serializer=TwilioFrameSerializer(
                 stream_sid,
@@ -97,8 +104,8 @@ async def run_bot(websocket_client: WebSocket, stream_sid: str, testing: bool,
     # Changed from GoogleLLMService to GroqLLMService
     groq_api_key = os.getenv("GROQ_API_KEY")
     deepgram_api_key = os.getenv("DEEPGRAM_API_KEY")
-    eleven_api_key = os.getenv("ELEVEN_API_KEY")
-    eleven_voice_id = os.getenv("ELEVEN_VOICE_ID")
+    cartesia_api_key = os.getenv("CARTESIA_API_KEY")
+    cartesia_voice_id = os.getenv("CARTESIA_VOICE_ID")
 
     if not groq_api_key:
         logger.error("GROQ_API_KEY environment variable is missing.")
@@ -106,23 +113,32 @@ async def run_bot(websocket_client: WebSocket, stream_sid: str, testing: bool,
     if not deepgram_api_key:
         logger.error("DEEPGRAM_API_KEY environment variable is missing.")
         raise ValueError("DEEPGRAM_API_KEY environment variable is required.")
-    if not eleven_api_key:
-        logger.error("ELEVEN_API_KEY environment variable is missing.")
-        raise ValueError("ELEVEN_API_KEY environment variable is required.")
-    if not eleven_voice_id:
-        logger.error("ELEVEN_VOICE_ID environment variable is missing.")
-        raise ValueError("ELEVEN_VOICE_ID environment variable is required.")
+    if not cartesia_api_key:
+        logger.error("CARTESIA_API_KEY environment variable is missing.")
+        raise ValueError("CARTESIA_API_KEY environment variable is required.")
+    if not cartesia_voice_id:
+        logger.error("CARTESIA_VOICE_ID environment variable is missing.")
+        raise ValueError("CARTESIA_VOICE_ID environment variable is required.")
 
     llm = GroqLLMService(
         api_key=groq_api_key,
-        model="llama-3.3-70b-versatile",
+        model="llama-3.1-8b-instant",
     )
 
-    stt = DeepgramSTTService(api_key=deepgram_api_key, audio_passthrough=True)
+    stt = DeepgramSTTService(
+        api_key=deepgram_api_key,
+        audio_passthrough=True,
+        settings=DeepgramSTTService.Settings(
+            model="nova-3",
+            language="en",
+            endpointing=400,
+        ),
+    )
 
-    tts = ElevenLabsTTSService(
-        api_key=eleven_api_key,
-        voice_id=eleven_voice_id,
+    tts = CartesiaTTSService(
+        api_key=cartesia_api_key,
+        voice_id=cartesia_voice_id,
+        push_silence_after_stop=True,
     )
 
     # Dynamic system prompt based on customer support context
