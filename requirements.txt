@@ -3,7 +3,8 @@ fastapi
 uvicorn
 python-dotenv
 loguru
-twilio
+telnyx
+aiohttp
 jinja2
 python-multipart
 aiofiles
