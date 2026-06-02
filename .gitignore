@@ -4,3 +4,8 @@ __pycache__
 test.py 
 test_elevenlabs.py 
 fetch_voices.py
+test/
+conversations/
+recordings/
+.gitignore
+customer_care.db
