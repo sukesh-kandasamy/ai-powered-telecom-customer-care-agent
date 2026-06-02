@@ -145,7 +145,7 @@
         <h1>Support Portal</h1>
         <p class="subtitle" id="stepSubtitle">Authenticate to request a callback.</p>
 
-        <!-- Step 1: Request OTP -->
+        <!-- Step 1: Request Callback -->
         <div id="step1" class="step active">
             <div class="form-group">
                 <label for="name">Full Name</label>
@@ -155,20 +155,6 @@
                 <label for="phone">Phone Number</label>
                 <input type="tel" id="phone" placeholder="+1234567890">
             </div>
-            <button id="btnSendOtp">Send OTP</button>
-        </div>
-
-        <!-- Step 2: Verify OTP -->
-        <div id="step2" class="step">
-            <div class="form-group">
-                <label for="otp">Enter OTP</label>
-                <input type="text" id="otp" placeholder="123456" maxlength="6">
-            </div>
-            <button id="btnVerifyOtp">Verify</button>
-        </div>
-
-        <!-- Step 3: Issue Selection -->
-        <div id="step3" class="step">
             <div class="form-group">
                 <label for="issue">What are you experiencing?</label>
                 <select id="issue">
@@ -180,8 +166,8 @@
             <button id="btnRequestCall">Request AI Callback</button>
         </div>
         
-        <!-- Step 4: Success -->
-        <div id="step4" class="step">
+        <!-- Step 2: Success -->
+        <div id="step2" class="step">
             <div style="text-align: center;">
                 <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 1rem;">
                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
@@ -199,12 +185,8 @@
 <script>
     const step1 = document.getElementById('step1');
     const step2 = document.getElementById('step2');
-    const step3 = document.getElementById('step3');
-    const step4 = document.getElementById('step4');
     const subtitle = document.getElementById('stepSubtitle');
     const errorMsg = document.getElementById('errorMessage');
-
-    let customerData = { name: '', phone: '', issue: '' };
 
     function showError(msg) {
         errorMsg.textContent = msg;
@@ -214,80 +196,15 @@
         errorMsg.textContent = '';
     }
 
-    // Step 1 -> 2
-    document.getElementById('btnSendOtp').addEventListener('click', async (e) => {
-        const btn = e.target;
-        customerData.name = document.getElementById('name').value.trim();
-        customerData.phone = document.getElementById('phone').value.trim();
-
-        if (!customerData.name || !customerData.phone) {
-            return showError("Please enter name and phone number.");
-        }
-
-        btn.disabled = true;
-        btn.textContent = "Sending...";
-        clearError();
-
-        try {
-            const formData = new FormData();
-            formData.append('phone_no', customerData.phone);
-            
-            const res = await fetch('/send-otp', { method: 'POST', body: formData });
-            const data = await res.json();
-            
-            if (res.ok) {
-                step1.classList.remove('active');
-                step2.classList.add('active');
-                subtitle.textContent = "We sent a code to " + customerData.phone;
-            } else {
-                showError(data.error || "Failed to send OTP.");
-            }
-        } catch (err) {
-            showError("Network error occurred.");
-        } finally {
-            btn.disabled = false;
-            btn.textContent = "Send OTP";
-        }
-    });
-
-    // Step 2 -> 3
-    document.getElementById('btnVerifyOtp').addEventListener('click', async (e) => {
-        const btn = e.target;
-        const otp = document.getElementById('otp').value.trim();
-
-        if (!otp) return showError("Please enter the OTP.");
-
-        btn.disabled = true;
-        btn.textContent = "Verifying...";
-        clearError();
-
-        try {
-            const formData = new FormData();
-            formData.append('phone_no', customerData.phone);
-            formData.append('otp_code', otp);
-            
-            const res = await fetch('/verify-otp', { method: 'POST', body: formData });
-            
-            if (res.ok) {
-                step2.classList.remove('active');
-                step3.classList.add('active');
-                subtitle.textContent = "Hi " + customerData.name + ", how can we help?";
-            } else {
-                const data = await res.json();
-                showError(data.error || "Invalid OTP.");
-            }
-        } catch (err) {
-            showError("Network error occurred.");
-        } finally {
-            btn.disabled = false;
-            btn.textContent = "Verify";
-        }
-    });
-
-    // Step 3 -> 4
     document.getElementById('btnRequestCall').addEventListener('click', async (e) => {
         const btn = e.target;
-        customerData.issue = document.getElementById('issue').value;
+        const name = document.getElementById('name').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const issue = document.getElementById('issue').value;
+
+        if (!name || !phone) {
+            return showError("Please enter your name and phone number.");
+        }
 
         btn.disabled = true;
         btn.textContent = "Requesting...";
@@ -295,15 +212,15 @@
 
         try {
             const formData = new FormData();
-            formData.append('name', customerData.name);
-            formData.append('phone_no', customerData.phone);
-            formData.append('issue_type', customerData.issue);
+            formData.append('name', name);
+            formData.append('phone_no', phone);
+            formData.append('issue_type', issue);
             
             const res = await fetch('/request-callback', { method: 'POST', body: formData });
             
             if (res.ok) {
-                step3.classList.remove('active');
-                step4.classList.add('active');
+                step1.classList.remove('active');
+                step2.classList.add('active');
                 subtitle.textContent = "";
             } else {
                 const data = await res.json();

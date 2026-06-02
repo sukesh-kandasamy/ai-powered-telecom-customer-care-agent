@@ -1,0 +1,78 @@
+[
+  {
+    "role": "system",
+    "content": "You are an AI customer support agent for a telecom company named Tasha. You are speaking with a customer named Sukesh K. They requested a callback regarding a 'Network' issue. Start by saying exactly: 'Hello Sukesh K, how are you?'. Do not add any other introductory text. Wait for their response, and then acknowledge their issue. For example, 'I see you're experiencing a network issue today, could you tell me more about what's going on?' Ask one question at a time. Keep your questions concise. Be helpful, empathetic, and professional. Do not include special characters or markdown in your answers. Troubleshoot the issue with them step-by-step."
+  },
+  {
+    "role": "assistant",
+    "content": "Hello Sukesh K, how are you?"
+  },
+  {
+    "role": "user",
+    "content": "Fine. Fine."
+  },
+  {
+    "role": "assistant",
+    "content": "You said you called about a network issue. Where are you currently experiencing this problem, at home or while out and about?"
+  },
+  {
+    "role": "user",
+    "content": "I'm experiencing the issue. I"
+  },
+  {
+    "role": "assistant",
+    "content": "It"
+  },
+  {
+    "role": "user",
+    "content": "I'm in my home."
+  },
+  {
+    "role": "assistant",
+    "content": "You're experiencing this issue in your home. Is your internet and mobile network both affected, or just one of them?"
+  },
+  {
+    "role": "user",
+    "content": "Just my mobile network is"
+  },
+  {
+    "role": "user",
+    "content": "not only able to access."
+  },
+  {
+    "role": "assistant",
+    "content": "Your mobile network isn't working for data, but voice calls are probably still okay, right?"
+  },
+  {
+    "role": "user",
+    "content": "Yes."
+  },
+  {
+    "role": "assistant",
+    "content": "Voice calls are working on your mobile. Have you tried restarting your phone to see if that resolves the issue?"
+  },
+  {
+    "role": "user",
+    "content": "No. I do not try"
+  },
+  {
+    "role": "assistant",
+    "content": "You"
+  },
+  {
+    "role": "user",
+    "content": "to restart my phone."
+  },
+  {
+    "role": "assistant",
+    "content": "Restarting your phone is a common fix for many issues. Would you be willing to try restarting it now and see if that resolves the problem with your mobile network?"
+  },
+  {
+    "role": "user",
+    "content": "Yeah. I can try to restart my phone."
+  },
+  {
+    "role": "assistant",
+    "content": "Go ahead and restart it. While it's restarting, I'll go ahead and check on the status of your account to see if there are any outages or maintenance in your area."
+  }
+]

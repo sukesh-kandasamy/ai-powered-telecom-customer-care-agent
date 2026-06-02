@@ -16,7 +16,14 @@ import db
 
 load_dotenv(override=True)
 
-app = FastAPI()
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("Starting up Customer Care server...")
+    yield
+
+app = FastAPI(lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -34,47 +41,12 @@ twilio_client = Client(
 
 call_data_store = {}
 
-@app.on_event("startup")
-async def startup_event():
-    logger.info("Starting up Customer Care server...")
-
 @app.get("/")
 async def get_form(request: Request):
     """Serve the HTML form for customer support"""
     return templates.TemplateResponse(request=request, name="support_form.html")
 
-@app.post("/send-otp")
-async def send_otp(phone_no: str = Form(...)):
-    """Send an OTP using Twilio Verify"""
-    verify_sid = os.getenv("TWILIO_VERIFY_SERVICE_SID")
-    if not verify_sid:
-        return JSONResponse(status_code=500, content={"error": "Twilio Verify Service SID not configured."})
-    
-    try:
-        verification = twilio_client.verify.v2.services(verify_sid).verifications.create(
-            to=phone_no,
-            channel="sms"
-        )
-        return {"status": "success", "message": f"OTP sent to {phone_no}"}
-    except Exception as e:
-        logger.error(f"Error sending OTP: {e}")
-        return JSONResponse(status_code=400, content={"error": str(e)})
 
-@app.post("/verify-otp")
-async def verify_otp(phone_no: str = Form(...), otp_code: str = Form(...)):
-    """Verify an OTP using Twilio Verify"""
-    verify_sid = os.getenv("TWILIO_VERIFY_SERVICE_SID")
-    try:
-        verification_check = twilio_client.verify.v2.services(verify_sid).verification_checks.create(
-            to=phone_no,
-            code=otp_code
-        )
-        if verification_check.status == "approved":
-            return {"status": "success"}
-        return JSONResponse(status_code=400, content={"error": "Invalid OTP"})
-    except Exception as e:
-        logger.error(f"Error verifying OTP: {e}")
-        return JSONResponse(status_code=400, content={"error": str(e)})
 
 @app.post("/request-callback")
 async def request_callback(
