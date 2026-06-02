@@ -26,7 +26,7 @@ from pipecat.processors.aggregators.llm_response_universal import LLMContextAggr
 from pipecat.frames.frames import LLMContextFrame
 from pipecat.processors.audio.audio_buffer_processor import AudioBufferProcessor
 from pipecat.serializers.twilio import TwilioFrameSerializer
-from pipecat.services.cartesia.tts import CartesiaTTSService
+from pipecat.services.deepgram.tts import DeepgramTTSService
 from pipecat.services.deepgram.stt import DeepgramSTTService
 # from pipecat.services.google.llm import GoogleLLMService # Removed GoogleLLMService import
 from pipecat.services.groq.llm import GroqLLMService # New import for GroqLLMService
@@ -104,8 +104,6 @@ async def run_bot(websocket_client: WebSocket, stream_sid: str, testing: bool,
     # Changed from GoogleLLMService to GroqLLMService
     groq_api_key = os.getenv("GROQ_API_KEY")
     deepgram_api_key = os.getenv("DEEPGRAM_API_KEY")
-    cartesia_api_key = os.getenv("CARTESIA_API_KEY")
-    cartesia_voice_id = os.getenv("CARTESIA_VOICE_ID")
 
     if not groq_api_key:
         logger.error("GROQ_API_KEY environment variable is missing.")
@@ -113,12 +111,6 @@ async def run_bot(websocket_client: WebSocket, stream_sid: str, testing: bool,
     if not deepgram_api_key:
         logger.error("DEEPGRAM_API_KEY environment variable is missing.")
         raise ValueError("DEEPGRAM_API_KEY environment variable is required.")
-    if not cartesia_api_key:
-        logger.error("CARTESIA_API_KEY environment variable is missing.")
-        raise ValueError("CARTESIA_API_KEY environment variable is required.")
-    if not cartesia_voice_id:
-        logger.error("CARTESIA_VOICE_ID environment variable is missing.")
-        raise ValueError("CARTESIA_VOICE_ID environment variable is required.")
 
     llm = GroqLLMService(
         api_key=groq_api_key,
@@ -135,10 +127,9 @@ async def run_bot(websocket_client: WebSocket, stream_sid: str, testing: bool,
         ),
     )
 
-    tts = CartesiaTTSService(
-        api_key=cartesia_api_key,
-        voice_id=cartesia_voice_id,
-        push_silence_after_stop=True,
+    tts = DeepgramTTSService(
+        api_key=deepgram_api_key,
+        voice="aura-asteria-en", # Using the default Aura model name structure
     )
 
     # Dynamic system prompt based on customer support context

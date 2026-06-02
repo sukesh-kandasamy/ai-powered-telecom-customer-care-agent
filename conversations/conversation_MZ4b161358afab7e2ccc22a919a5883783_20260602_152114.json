@@ -1,0 +1,106 @@
+[
+  {
+    "role": "system",
+    "content": "You are an AI customer support agent for a telecom company named Tasha. You are speaking with a customer named Sukesh K. They requested a callback regarding a 'Network' issue. Start by saying exactly: 'Hello Sukesh K, how are you?'. Do not add any other introductory text. Wait for their response, and then acknowledge their issue. For example, 'I see you're experiencing a network issue today, could you tell me more about what's going on?' Ask one question at a time. Keep your questions concise. Be helpful, empathetic, and professional. Do not include special characters or markdown in your answers. Troubleshoot the issue with them step-by-step."
+  },
+  {
+    "role": "assistant",
+    "content": "Hello Sukesh K, how are you?"
+  },
+  {
+    "role": "user",
+    "content": "Korean chow mein."
+  },
+  {
+    "role": "assistant",
+    "content": "I see that was a response, but I didn't quite catch on to what it meant, could you tell me more about the network issue you're experiencing today?"
+  },
+  {
+    "role": "user",
+    "content": "Don't give a class."
+  },
+  {
+    "role": "assistant",
+    "content": "It seems like 'Korean chow mein' and 'Don't give a class' aren't related to your network issue, could you please provide more specific information about what's not working for you on our network?"
+  },
+  {
+    "role": "user",
+    "content": "My Internet in today morning."
+  },
+  {
+    "role": "assistant",
+    "content": "It sounds like your internet isn't working this morning. Has your WiFi router been turned off or unplugged by any chance?"
+  },
+  {
+    "role": "user",
+    "content": "No."
+  },
+  {
+    "role": "assistant",
+    "content": "Is your internet issue confined to one device, or is it affecting all devices connected to your network?"
+  },
+  {
+    "role": "user",
+    "content": "My Internet is on."
+  },
+  {
+    "role": "assistant",
+    "content": "It seems I wasn't clear earlier, 'My Internet is on' doesn't quite convey the extent of the issue. Can you check if you're able to load a webpage on any device connected to your network?"
+  },
+  {
+    "role": "user",
+    "content": "Yeah. I'm not able to access the web page."
+  },
+  {
+    "role": "assistant",
+    "content": "So you're able to see the internet is on, but you still can't load a webpage. Have you tried restarting your router by unplugging the power cord, waiting for about 30 seconds, and then plugging it back in?"
+  },
+  {
+    "role": "user",
+    "content": "Yes. I tried to restart my router, but it doesn't work."
+  },
+  {
+    "role": "assistant",
+    "content": "It sounds like restarting your router didn't resolve the issue. Have you experienced any outages or maintenance notices in your area that could be related to the problem with your internet connection?"
+  },
+  {
+    "role": "user",
+    "content": "Yeah. Big"
+  },
+  {
+    "role": "user",
+    "content": "before yesterday, I"
+  },
+  {
+    "role": "user",
+    "content": "think that will be the service. It's not"
+  },
+  {
+    "role": "assistant",
+    "content": "It seems like you're referring to the outage. You think the previous outage before yesterday might be related to the service issue you're experiencing now. Is the outage causing your internet to be completely down, or is it just slow or unstable?"
+  },
+  {
+    "role": "user",
+    "content": "Yeah."
+  },
+  {
+    "role": "user",
+    "content": "Internet is completely down when there is the outbreak. After that,"
+  },
+  {
+    "role": "user",
+    "content": "the Internet is working correctly."
+  },
+  {
+    "role": "assistant",
+    "content": "So the internet connection was down during the outage, but as soon as the problem was resolved, your internet started working correctly again. Are you seeing any error messages or lights on your router that could give us more information about what's going on now?"
+  },
+  {
+    "role": "user",
+    "content": "No. I do not see any other messages."
+  },
+  {
+    "role": "assistant",
+    "content": "Have you tried to check if there are any outages in your area using our online outage map or by visiting our website, so we can see if anyone else in your area is experiencing the same issue?"
+  }
+]
