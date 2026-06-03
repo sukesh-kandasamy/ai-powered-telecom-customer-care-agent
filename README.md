@@ -3,6 +3,9 @@
 An interactive, AI-powered Telecom Customer Care application built with [Pipecat](https://pipecat.ai/), FastAPI, and Twilio. 
 
 This project allows customers to log a support issue (e.g., Network, Call Dropping, No Signal) and immediately receive a phone call from an intelligent AI support agent tailored to resolve their specific issue. The agent communicates fluently in **Tamil**.
+## Demo
+
+[Listen to a sample interaction with the AI support agent (Tamil)](audio/sample_conversation.wav)
 
 ## Features
 
