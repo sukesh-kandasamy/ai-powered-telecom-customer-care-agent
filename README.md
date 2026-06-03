@@ -1,4 +1,4 @@
-[sample_conversation.wav](https://github.com/user-attachments/files/28538932/sample_conversation.wav)
+[sample_conversation.wav]()
 # Telecom Customer Care AI Agent
 
 An interactive, AI-powered Telecom Customer Care application built with [Pipecat](https://pipecat.ai/), FastAPI, and Twilio. 
@@ -8,6 +8,9 @@ This project allows customers to log a support issue (e.g., Network, Call Droppi
 
 <video src='https://github.com/user-attachments/assets/10a102b7-8c7b-402f-ad09-0cd3d1245ea7'/>
 
+<audio controls>
+  <source src="https://github.com/user-attachments/files/28538932/sample_conversation.wav">
+</audio>
 
 
 ## Features
