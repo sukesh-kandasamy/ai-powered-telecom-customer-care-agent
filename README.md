@@ -3,9 +3,6 @@
 An interactive, AI-powered Telecom Customer Care application built with [Pipecat](https://pipecat.ai/), FastAPI, and Twilio. 
 
 This project allows customers to log a support issue (e.g., Network, Call Dropping, No Signal) and immediately receive a phone call from an intelligent AI support agent tailored to resolve their specific issue. The agent communicates fluently in **Tamil**.
-## Demo
-
-<video src='https://github.com/user-attachments/assets/10a102b7-8c7b-402f-ad09-0cd3d1245ea7'/>
 
 
 ## Features
@@ -87,3 +84,7 @@ This project allows customers to log a support issue (e.g., Network, Call Droppi
 ## Troubleshooting
 
 - **Webhooks failing:** Ensure `SERVER_URL` in `.env` is exactly your active ngrok URL (without a trailing slash).
+
+## Demo
+
+<video src='https://github.com/user-attachments/assets/10a102b7-8c7b-402f-ad09-0cd3d1245ea7'/>
