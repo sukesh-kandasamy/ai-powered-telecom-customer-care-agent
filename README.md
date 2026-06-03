@@ -1,4 +1,4 @@
-# Telecom Customer Care AI Agent
+# AI-powered Telecom Customer Care Agent
 
 An interactive, AI-powered Telecom Customer Care application built with [Pipecat](https://pipecat.ai/), FastAPI, and Twilio. 
 
