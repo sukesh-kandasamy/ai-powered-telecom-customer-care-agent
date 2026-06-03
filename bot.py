@@ -25,7 +25,7 @@ from pipecat.processors.aggregators.llm_context import LLMContext
 from pipecat.processors.aggregators.llm_response_universal import LLMContextAggregatorPair
 from pipecat.frames.frames import LLMContextFrame
 from pipecat.processors.audio.audio_buffer_processor import AudioBufferProcessor
-from pipecat.serializers.twilio import TwilioFrameSerializer
+from pipecat.serializers.telnyx import TelnyxFrameSerializer
 from pipecat.services.cartesia.tts import CartesiaTTSService
 from pipecat.services.deepgram.stt import DeepgramSTTService
 # from pipecat.services.google.llm import GoogleLLMService # Removed GoogleLLMService import
@@ -70,9 +70,10 @@ async def save_audio(server_name: str, audio: bytes, sample_rate: int, num_chann
         logger.info("No audio data to save")
 
 
-async def run_bot(websocket_client: WebSocket, stream_sid: str, testing: bool,
+async def run_bot(websocket_client: WebSocket, stream_id: str, testing: bool,
                   customer_name: str, issue_type: str,
-                  call_sid: str = None, account_sid: str = None, auth_token: str = None):
+                  call_control_id: str = None, api_key: str = None,
+                  inbound_encoding: str = "PCMU", outbound_encoding: str = "PCMU"):
     """
     Runs the AI interview bot, handling WebSocket communication, STT, LLM, and TTS.
     It also manages conversation logging and audio recording.
@@ -82,7 +83,7 @@ async def run_bot(websocket_client: WebSocket, stream_sid: str, testing: bool,
         params=FastAPIWebsocketParams(
             audio_in_enabled=True,
             audio_out_enabled=True,
-            add_wav_header=False, # Twilio doesn't expect WAV headers in stream
+            add_wav_header=False, # Telnyx doesn't expect WAV headers in stream
             vad_enabled=True,
             vad_analyzer=SileroVADAnalyzer(
                 params=VADParams(
@@ -92,12 +93,13 @@ async def run_bot(websocket_client: WebSocket, stream_sid: str, testing: bool,
                 )
             ),
             vad_audio_passthrough=True, # Pass VAD audio to STT
-            serializer=TwilioFrameSerializer(
-                stream_sid,
-                call_sid=call_sid,
-                account_sid=account_sid,
-                auth_token=auth_token,
-            ), # Serialize frames for Twilio
+            serializer=TelnyxFrameSerializer(
+                stream_id=stream_id,
+                outbound_encoding=outbound_encoding,
+                inbound_encoding=inbound_encoding,
+                call_control_id=call_control_id,
+                api_key=api_key,
+            ), # Serialize frames for Telnyx
         ),
     )
 
@@ -163,12 +165,12 @@ async def run_bot(websocket_client: WebSocket, stream_sid: str, testing: bool,
     # Define the pipeline for audio and text processing
     pipeline = Pipeline(
         [
-            transport.input(),  # WebSocket input from Twilio (audio from caller)
+            transport.input(),  # WebSocket input from Telnyx (audio from caller)
             stt,  # Speech-To-Text: Converts caller's audio to text
             context_aggregator.user(), # Aggregates user's text into LLM context
             llm,  # LLM (Groq): Generates bot's text response
             tts,  # Text-To-Speech: Converts bot's text response to audio
-            transport.output(),  # WebSocket output to Twilio (audio to caller)
+            transport.output(),  # WebSocket output to Telnyx (audio to caller)
             audiobuffer,  # Buffers all audio (inbound and outbound) for recording
             context_aggregator.assistant(), # Aggregates bot's text into LLM context
         ]
@@ -178,8 +180,8 @@ async def run_bot(websocket_client: WebSocket, stream_sid: str, testing: bool,
     task = PipelineTask(
         pipeline,
         params=PipelineParams(
-            audio_in_sample_rate=8000, # Twilio audio input sample rate
-            audio_out_sample_rate=8000, # Twilio audio output sample rate
+            audio_in_sample_rate=8000, # Telnyx audio input sample rate
+            audio_out_sample_rate=8000, # Telnyx audio output sample rate
             allow_interruptions=True, # Allow bot to be interrupted by user speech
         ),
     )
@@ -187,7 +189,7 @@ async def run_bot(websocket_client: WebSocket, stream_sid: str, testing: bool,
     @transport.event_handler("on_client_connected")
     async def on_client_connected(transport, client):
         """
-        Handler for when the WebSocket client (Twilio) connects.
+        Handler for when the WebSocket client (Telnyx) connects.
         Starts audio recording and kicks off the conversation.
         """
         await audiobuffer.start_recording()
@@ -200,16 +202,16 @@ async def run_bot(websocket_client: WebSocket, stream_sid: str, testing: bool,
     @transport.event_handler("on_client_disconnected")
     async def on_client_disconnected(transport, client):
         """
-        Handler for when the WebSocket client (Twilio) disconnects.
+        Handler for when the WebSocket client (Telnyx) disconnects.
         Saves any remaining buffered audio and the full conversation log.
         """
         logger.info("Client disconnected. Audio chunks are being saved in the 'recordings' directory.")
         
         # Save conversation log to JSON file
-        # The stream_sid provides a unique identifier for each call session
+        # The stream_id provides a unique identifier for each call session
         conversation_filename = os.path.join(
             CONVERSATION_LOG_DIR,
-            f"conversation_{stream_sid}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            f"conversation_{stream_id}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         )
         try:
             # context.messages contains the full chat history (system, user, assistant roles)
