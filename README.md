@@ -5,7 +5,10 @@ An interactive, AI-powered Telecom Customer Care application built with [Pipecat
 This project allows customers to log a support issue (e.g., Network, Call Dropping, No Signal) and immediately receive a phone call from an intelligent AI support agent tailored to resolve their specific issue. The agent communicates fluently in **Tamil**.
 ## Demo
 
-[Listen to a sample interaction with the AI support agent (Tamil)](audio/sample_conversation.wav)
+<audio controls>
+  <source src="audio/sample_conversation.wav" type="audio/wav">
+  Your browser does not support the audio element.
+</audio>
 
 ## Features
 
