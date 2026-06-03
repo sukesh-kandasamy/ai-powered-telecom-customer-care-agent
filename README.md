@@ -5,7 +5,9 @@ An interactive, AI-powered Telecom Customer Care application built with [Pipecat
 This project allows customers to log a support issue (e.g., Network, Call Dropping, No Signal) and immediately receive a phone call from an intelligent AI support agent tailored to resolve their specific issue. The agent communicates fluently in **Tamil**.
 ## Demo
 
-<video controls src="https://github.com/sukesh-kandasamy/Interview-Caller-Agent/blob/main/audio/sample_conversation.mp4" title="Sample Conversation"></video>
+<video src='https://github.com/user-attachments/assets/10a102b7-8c7b-402f-ad09-0cd3d1245ea7'/>
+
+
 
 ## Features
 
