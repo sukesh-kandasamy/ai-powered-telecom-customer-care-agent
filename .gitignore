@@ -4,3 +4,5 @@ __pycache__
 test.py 
 test_elevenlabs.py 
 fetch_voices.py
+conversations/
+recordings/

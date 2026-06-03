@@ -26,7 +26,7 @@ from pipecat.processors.aggregators.llm_response_universal import LLMContextAggr
 from pipecat.frames.frames import LLMContextFrame
 from pipecat.processors.audio.audio_buffer_processor import AudioBufferProcessor
 from pipecat.serializers.twilio import TwilioFrameSerializer
-from pipecat.services.deepgram.tts import DeepgramTTSService
+from pipecat.services.cartesia.tts import CartesiaTTSService
 from pipecat.services.deepgram.stt import DeepgramSTTService
 # from pipecat.services.google.llm import GoogleLLMService # Removed GoogleLLMService import
 from pipecat.services.groq.llm import GroqLLMService # New import for GroqLLMService
@@ -104,6 +104,8 @@ async def run_bot(websocket_client: WebSocket, stream_sid: str, testing: bool,
     # Changed from GoogleLLMService to GroqLLMService
     groq_api_key = os.getenv("GROQ_API_KEY")
     deepgram_api_key = os.getenv("DEEPGRAM_API_KEY")
+    cartesia_api_key = os.getenv("CARTESIA_API_KEY")
+    cartesia_voice_id = os.getenv("CARTESIA_VOICE_ID")
 
     if not groq_api_key:
         logger.error("GROQ_API_KEY environment variable is missing.")
@@ -111,10 +113,16 @@ async def run_bot(websocket_client: WebSocket, stream_sid: str, testing: bool,
     if not deepgram_api_key:
         logger.error("DEEPGRAM_API_KEY environment variable is missing.")
         raise ValueError("DEEPGRAM_API_KEY environment variable is required.")
+    if not cartesia_api_key:
+        logger.error("CARTESIA_API_KEY environment variable is missing.")
+        raise ValueError("CARTESIA_API_KEY environment variable is required.")
+    if not cartesia_voice_id:
+        logger.error("CARTESIA_VOICE_ID environment variable is missing.")
+        raise ValueError("CARTESIA_VOICE_ID environment variable is required.")
 
     llm = GroqLLMService(
         api_key=groq_api_key,
-        model="llama-3.1-8b-instant",
+        model="llama-3.3-70b-versatile",
     )
 
     stt = DeepgramSTTService(
@@ -122,25 +130,26 @@ async def run_bot(websocket_client: WebSocket, stream_sid: str, testing: bool,
         audio_passthrough=True,
         settings=DeepgramSTTService.Settings(
             model="nova-3",
-            language="en",
+            language="ta",
             endpointing=400,
         ),
     )
 
-    tts = DeepgramTTSService(
-        api_key=deepgram_api_key,
-        voice="aura-asteria-en", # Using the default Aura model name structure
+    tts = CartesiaTTSService(
+        api_key=cartesia_api_key,
+        settings=CartesiaTTSService.Settings(voice=cartesia_voice_id),
+        push_silence_after_stop=True,
     )
 
-    # Dynamic system prompt based on customer support context
     system_prompt = (
         f"You are an AI customer support agent for a telecom company named Tasha. "
         f"You are speaking with a customer named {customer_name}. "
         f"They requested a callback regarding a '{issue_type}' issue. "
-        f"Start by saying exactly: 'Hello {customer_name}, how are you?'. Do not add any other introductory text. "
-        "Wait for their response, and then acknowledge their issue. For example, 'I see you're experiencing a network issue today, could you tell me more about what's going on?' "
-        "Ask one question at a time. Keep your questions concise. Be helpful, empathetic, and professional. "
-        "Do not include special characters or markdown in your answers. Troubleshoot the issue with them step-by-step."
+        f"Respond STRICTLY and EXCLUSIVELY in the Tamil language using the Tamil script. Do not use any English words or English letters. "
+        f"Start by saying EXACTLY: 'வணக்கம் {customer_name}, நீங்கள் எப்படி இருக்கிறீர்கள்?' Do not add any other introductory text. "
+        "Wait for their response, and then acknowledge their problem naturally in Tamil. "
+        "Ask one question at a time. Keep your sentences short and conversational. Be helpful and empathetic. "
+        "Do not include special characters, complex formatting, or markdown in your answers. Troubleshoot the issue with them step-by-step entirely in Tamil."
     )
 
     # Initialize messages with the system prompt
