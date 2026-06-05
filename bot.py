@@ -25,7 +25,7 @@ from pipecat.processors.aggregators.llm_context import LLMContext
 from pipecat.processors.aggregators.llm_response_universal import LLMContextAggregatorPair
 from pipecat.frames.frames import LLMContextFrame
 from pipecat.processors.audio.audio_buffer_processor import AudioBufferProcessor
-from pipecat.serializers.telnyx import TelnyxFrameSerializer
+from pipecat.serializers.twilio import TwilioFrameSerializer
 from pipecat.services.cartesia.tts import CartesiaTTSService
 from pipecat.services.deepgram.stt import DeepgramSTTService
 # from pipecat.services.google.llm import GoogleLLMService # Removed GoogleLLMService import
@@ -83,7 +83,7 @@ async def run_bot(websocket_client: WebSocket, stream_id: str, testing: bool,
         params=FastAPIWebsocketParams(
             audio_in_enabled=True,
             audio_out_enabled=True,
-            add_wav_header=False, # Telnyx doesn't expect WAV headers in stream
+            add_wav_header=False, # Twilio expects raw mulaw audio without WAV headers
             vad_enabled=True,
             vad_analyzer=SileroVADAnalyzer(
                 params=VADParams(
@@ -93,13 +93,12 @@ async def run_bot(websocket_client: WebSocket, stream_id: str, testing: bool,
                 )
             ),
             vad_audio_passthrough=True, # Pass VAD audio to STT
-            serializer=TelnyxFrameSerializer(
-                stream_id=stream_id,
-                outbound_encoding=outbound_encoding,
-                inbound_encoding=inbound_encoding,
-                call_control_id=call_control_id,
-                api_key=api_key,
-            ), # Serialize frames for Telnyx
+            serializer=TwilioFrameSerializer(
+                stream_sid=stream_id,
+                call_sid=call_control_id,
+                account_sid=os.getenv("TWILIO_ACCOUNT_SID"),
+                auth_token=os.getenv("TWILIO_AUTH_TOKEN"),
+            ), # Serialize frames for Twilio
         ),
     )
 
@@ -132,14 +131,19 @@ async def run_bot(websocket_client: WebSocket, stream_id: str, testing: bool,
         audio_passthrough=True,
         settings=DeepgramSTTService.Settings(
             model="nova-3",
-            language="ta",
+            language="multi",
             endpointing=400,
         ),
     )
 
     tts = CartesiaTTSService(
         api_key=cartesia_api_key,
-        settings=CartesiaTTSService.Settings(voice=cartesia_voice_id),
+        sample_rate=8000,
+        settings=CartesiaTTSService.Settings(
+            model="sonic-3",
+            voice=cartesia_voice_id,
+            language="ta",
+        ),
         push_silence_after_stop=True,
     )
 
@@ -147,11 +151,18 @@ async def run_bot(websocket_client: WebSocket, stream_id: str, testing: bool,
         f"You are an AI customer support agent for a telecom company named Tasha. "
         f"You are speaking with a customer named {customer_name}. "
         f"They requested a callback regarding a '{issue_type}' issue. "
-        f"Respond STRICTLY and EXCLUSIVELY in the Tamil language using the Tamil script. Do not use any English words or English letters. "
-        f"Start by saying EXACTLY: 'வணக்கம் {customer_name}, நீங்கள் எப்படி இருக்கிறீர்கள்?' Do not add any other introductory text. "
-        "Wait for their response, and then acknowledge their problem naturally in Tamil. "
+        f"Speak in natural colloquial Tamil — the way a real Tamil person in Chennai talks on a customer support call. Use spoken/casual Tamil, NOT formal literary Tamil. "
+        f"Transliterate all English loan words into Tamil script (e.g., network → நெட்வொர்க், problem → ப்ராப்ளம், signal → சிக்னல், check → செக், okay → ஓகே, recharge → ரீசார்ஜ்). "
+        f"Start by saying EXACTLY: 'ஹலோ {customer_name}, எப்படி இருக்கீங்க?' Do not add any other introductory text. "
+        "Wait for their response, and then acknowledge their problem naturally in colloquial Tamil. "
         "Ask one question at a time. Keep your sentences short and conversational. Be helpful and empathetic. "
-        "Do not include special characters, complex formatting, or markdown in your answers. Troubleshoot the issue with them step-by-step entirely in Tamil."
+        "Use casual fillers like ஓகே, ஆமா, அப்படியா, ஹலோ, ஷ்யூர். "
+        "Example conversation:\n"
+        "Customer: 'எனக்கு நெட்வொர்க் வரல'\n"
+        "You: 'அய்யோ, அப்படியா? உங்க ஏரியா-ல சிக்னல் இஷ்யூ இருக்கா? ஃபோனை ரீஸ்டார்ட் பண்ணி பாருங்க.'\n"
+        "Customer: 'பண்ணிட்டேன், ஆனா சேம் ப்ராப்ளம்'\n"
+        "You: 'ஓகே ஓகே, சிம் கார்டை ஒரு தடவை ரிமூவ் பண்ணி பேக் போடுங்க. சம்டைம்ஸ் அது ஃபிக்ஸ் ஆயிடும்.'\n"
+        "Do not include special characters, complex formatting, or markdown in your answers. Troubleshoot the issue with them step-by-step entirely in Tamil script."
     )
 
     # Initialize messages with the system prompt
@@ -165,12 +176,12 @@ async def run_bot(websocket_client: WebSocket, stream_id: str, testing: bool,
     # Define the pipeline for audio and text processing
     pipeline = Pipeline(
         [
-            transport.input(),  # WebSocket input from Telnyx (audio from caller)
+            transport.input(),  # WebSocket input from Twilio (audio from caller)
             stt,  # Speech-To-Text: Converts caller's audio to text
             context_aggregator.user(), # Aggregates user's text into LLM context
             llm,  # LLM (Groq): Generates bot's text response
             tts,  # Text-To-Speech: Converts bot's text response to audio
-            transport.output(),  # WebSocket output to Telnyx (audio to caller)
+            transport.output(),  # WebSocket output to Twilio (audio to caller)
             audiobuffer,  # Buffers all audio (inbound and outbound) for recording
             context_aggregator.assistant(), # Aggregates bot's text into LLM context
         ]
@@ -180,8 +191,8 @@ async def run_bot(websocket_client: WebSocket, stream_id: str, testing: bool,
     task = PipelineTask(
         pipeline,
         params=PipelineParams(
-            audio_in_sample_rate=8000, # Telnyx audio input sample rate
-            audio_out_sample_rate=8000, # Telnyx audio output sample rate
+            audio_in_sample_rate=8000, # Twilio audio input sample rate
+            audio_out_sample_rate=8000, # Twilio audio output sample rate
             allow_interruptions=True, # Allow bot to be interrupted by user speech
         ),
     )
@@ -189,7 +200,7 @@ async def run_bot(websocket_client: WebSocket, stream_id: str, testing: bool,
     @transport.event_handler("on_client_connected")
     async def on_client_connected(transport, client):
         """
-        Handler for when the WebSocket client (Telnyx) connects.
+        Handler for when the WebSocket client (Twilio) connects.
         Starts audio recording and kicks off the conversation.
         """
         await audiobuffer.start_recording()
@@ -202,7 +213,7 @@ async def run_bot(websocket_client: WebSocket, stream_id: str, testing: bool,
     @transport.event_handler("on_client_disconnected")
     async def on_client_disconnected(transport, client):
         """
-        Handler for when the WebSocket client (Telnyx) disconnects.
+        Handler for when the WebSocket client (Twilio) disconnects.
         Saves any remaining buffered audio and the full conversation log.
         """
         logger.info("Client disconnected. Audio chunks are being saved in the 'recordings' directory.")
